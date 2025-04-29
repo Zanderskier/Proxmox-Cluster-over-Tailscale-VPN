@@ -183,9 +183,9 @@ Each Ubuntu server in was given 2 CPU's 2GB Ram, 32GB storage
 Add Tailscale's package signing key and repository:
 
 ```bash
-curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/jammy.noarmor.gpg | tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null
+curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/jammy.noarmor.gpg | sudo tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null
 
-curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/jammy.tailscale-keyring.list | tee /etc/apt/sources.list.d/tailscale.list
+curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/jammy.tailscale-keyring.list | sudo tee /etc/apt/sources.list.d/tailscale.list
 
 ```
 Install Tailscale:
@@ -322,6 +322,37 @@ sudo systemctl status containerd.service
 ```
 
 ### 6. Install Kubernetes components (on all nodes)
+
+The next step is to install Kubernetes
+```bash
+sudo apt-get install curl ca-certificates apt-transport-https  -y
+```
+
+Add the Kubernetes GPG signing key.
+```bash
+curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.31/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+```
+Thereafter, add the official Kubernetes repository to your system.
+```bash
+echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.31/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+```
+Once added, update the sources list for the system to recognize the newly added repository.
+```bash
+sudo apt update
+```
+kubeadm: This is a command-line utility for setting up Kubernetes clusters. It automates setting up a cluster, streamlining container deployments, and abstracting any complexities within the cluster. With kubeadm you can initialize the control-plane, configure networking, and join a remote node to a cluster.
+
+kubelet: This is a component that actively runs on each node in a cluster to oversee container management. It takes instructions from the master node and ensures containers run as expected.
+
+kubectl: This is a CLI tool for managing various cluster components including pods, nodes, and the cluster. You can use it to deploy applications and inspect, monitor, and view logs.
+
+To install these salient Kubernetes components, run the following command:
+
+```bash
+sudo apt install kubelet kubeadm kubectl -y
+```
+### 7. Initialize Kubernetes cluster (on master node)
+
 
 Set up kubectl for the user:
 
