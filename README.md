@@ -44,7 +44,7 @@ Further, it shows how to deploy a **multi-node Kubernetes cluster** within this 
 
 ## 🛠️ Step-by-Step Setup
 
-## Part 1 Procmox Cluster
+## Part 1 Proxmox Cluster
 
 ### 1. Install Proxmox VE on Two Physical Nodes
 
@@ -81,7 +81,7 @@ tailscale status
 Ensure both Proxmox nodes can reach each other via Tailscale IPs.
 
 ### 3. Edit Hosts file to Ensuring Hostname Resolution for Cluster Communication
-**File should be editted on all nodes in cluster**
+**File should be edited on all nodes in cluster**
 
 ```bash
 nano /etc/hosts
