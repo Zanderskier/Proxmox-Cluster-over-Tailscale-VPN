@@ -178,8 +178,8 @@ Make sure ports 22, 5405 (Corosync), and 8006 (Web UI) are reachable via Tailsca
 
 ---
 
-## Create The Kubernetes Cluster
-### 7. Create Virtual Machines (Ubuntu 22.04)
+## Part 2 Create The Kubernetes Cluster
+### 1. Create Virtual Machines (Ubuntu 22.04)
 
 VM Name	Host Node	Role
 
@@ -191,7 +191,7 @@ Install Ubuntu Server 22.04 on all VMs.
 
 Each Ubuntu server was given 2 CPU's 2GB Ram, 32GB storage
 
-### 8. Connect All VMs to Tailscale
+### 2. Connect All VMs to Tailscale
 
 Add Tailscale's package signing key and repository:
 
@@ -221,7 +221,7 @@ tailscale status
 
 The following steps should be completed on all nodes in cluster:
 
-### 8. Configure hostnames (all nodes)
+### 3. Configure hostnames (all nodes)
 ```bash
 sudo  nano  /etc/hosts
 ```
@@ -241,7 +241,7 @@ ff00::0 ip6-mcastprefix
 ff02::1 ip6-allnodes
 ff02::2 ip6-allrouters
 ```
-### 9. Disable swap space (all nodes)
+### 4. Disable swap space (all nodes)
 
 Kubernetes requires swap to be disabled because it relies on precise memory management using Linux cgroups to enforce resource limits. When swap is enabled, the operating system can move memory pages to disk, which interferes with Kubernetes' ability to track and enforce memory usage, potentially leading to performance issues and inaccurate scheduling decisions. Additionally, swap can prevent proper out-of-memory (OOM) behavior, as processes might be swapped out instead of terminated. To ensure consistent and reliable operation.
 
@@ -262,7 +262,7 @@ check that it is disabled by running this command. There will be no output if sw
 swapon --show
 ```
 
-### 10. Load Containerd modules (all nodes)
+### 5. Load Containerd modules (all nodes)
 
 ```bash
 sudo modprobe overlay
@@ -280,7 +280,7 @@ br_netfilter
 EOF
 ```
 
-### 11. Configure Kubernetes IPv4 networking (all nodes)
+### 6. Configure Kubernetes IPv4 networking (all nodes)
 
 ```bash
 sudo nano   /etc/sysctl.d/k8s.conf
@@ -298,7 +298,7 @@ Then apply the settings by running the following command:
 sudo sysctl --system
 ```
 
-### 12. Install Docker (on all nodes)
+### 7. Install Docker (on all nodes)
 ```bash
 sudo apt update
 ```
@@ -338,7 +338,7 @@ verify that the containerd service is running as expected
 sudo systemctl status containerd.service
 ```
 
-### 13. Install Kubernetes components (on all nodes)
+### 8. Install Kubernetes components (on all nodes)
 
 The next step is to install Kubernetes
 ```bash
@@ -368,7 +368,7 @@ To install these salient Kubernetes components, run the following command:
 ```bash
 sudo apt install kubelet kubeadm kubectl -y
 ```
-### 14. Initialize Kubernetes cluster (on master node)
+### 9. Initialize Kubernetes cluster (on master node)
 
 This configures the master node as the control plane. To initialize the cluster, run the command shown. The --pod-network-cidr indicates a unique pod network for the cluster, in this case, the 10.10.0.0 network with a CIDR of /16
 
@@ -390,7 +390,7 @@ sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
 ```
 
-### 15: Install Calico network add-on plugin (on master node)
+### 10: Install Calico network add-on plugin (on master node)
 
 Calico provides a network security solution in a Kubernetes cluster. It secures communication between individual pods as well as pods and external services. By auto-assigning IP addresses to pods, it ensures smooth communication between them.
 
@@ -416,7 +416,7 @@ At this point, the master node, which acts as the control plane, is the only nod
 ```bash
 kubectl get nodes
 ```
-### 16: Add worker nodes to the cluster (on worker nodes)
+### 11: Add worker nodes to the cluster (on worker nodes)
 With the master node configured, the remaining step is to add the worker nodes to the cluster.
 
 Run the kubeadm join command below in each worker node
