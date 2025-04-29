@@ -33,6 +33,8 @@ Further, it shows how to deploy a **multi-node Kubernetes cluster** within this 
 
 ## 🛠️ Step-by-Step Setup
 
+## Part 1 Procmox Cluster
+
 ### 1. Install Proxmox VE on Two Physical Nodes
 
 Install Proxmox VE on two separate machines in different physical locations.
@@ -41,24 +43,63 @@ Install Proxmox VE on two separate machines in different physical locations.
 - Node 2: Secondary node to join cluster
 
 ### 2. Set Up Tailscale
+**Repeat the following steps on both nodes**
 
-Install and authenticate Tailscale on **both Proxmox nodes**:
+Add Tailscale's package signing key and repository:
 
 ```bash
-curl -fsSL https://tailscale.com/install.sh | sh
-sudo tailscale up --authkey <your-auth-key> --hostname proxmox-nodeX
-```
-Verify connectivity:
+curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/jammy.noarmor.gpg | tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null
 
+curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/jammy.tailscale-keyring.list | tee /etc/apt/sources.list.d/tailscale.list
+
+```
+Install Tailscale:
+
+```bash
+sudo apt-get update
+sudo apt-get install tailscale
+```
+Connect machines to Tailscale network and authenticate via browser:
+```bash
+sudo tailscale up
+```
+Verify connection:
 ```bash
 tailscale status
 Ensure both Proxmox nodes can reach each other via Tailscale IPs.
 ```
-### 3. Create the Proxmox Cluster (on Node 1)
+
+### 3. Edit Hosts file to Ensuring Hostname Resolution for Cluster Communication
+**File should be editted on all nodes in cluster**
+
+```bash
+nano /etc/hosts
+```
+file should look similar to the following:
+```bash
+
+127.0.0.1 localhost.localdomain localhost
+x.x.x.x <node 1 hostname>.<FQD> <alt hostname for LAN>
+(LAN IP Address)
+
+100.x.x.x <Tailscale Node 1 Hostname>
+100.x.x.x <Tailscale Node 2 Hostname>
+
+# The following lines are desirable for IPv6 capable hosts
+
+::1     ip6-localhost ip6-loopback
+fe00::0 ip6-localnet
+ff00::0 ip6-mcastprefix
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+ff02::3 ip6-allhosts
+```
+
+### 4. Create the Proxmox Cluster (on Node 1)
 On the first node:
 
 ```bash
-pvecm create my-cluster
+pvecm create <my-cluster-name>
 ```
 ### 4. Modify corosync.conf to Use Tailscale IPs
 Edit the Corosync config (on Node 1):
@@ -76,7 +117,7 @@ logging {
 
 nodelist {
   node {
-    name: maximous
+    name: <node 1 hostname>
     nodeid: 1
     quorum_votes: 1
     ring0_addr: 100.x.x.x Replace with tailscale IP
@@ -92,7 +133,7 @@ totem {
   config_version: 1
   interface {
     linknumber: 0
-    bindnetaddr: 100.x.x.x Replace with Tailscale Network IP
+    bindnetaddr: 100.x.x.x Replace with Tailscale Network IP (typically ends in 100.x.x.0)
     mcastport: 5405
     tty: 1
   }
@@ -111,8 +152,17 @@ On Node 2:
 ```bash
 pvecm add 100.x.x.x  # Tailscale IP of Node 1
 ```
+**If the Above step fails, try the following**
+```bash
+pvecm add <node 1 hostname>
+```
 Make sure ports 22, 5405 (Corosync), and 8006 (Web UI) are reachable via Tailscale.
 
+### ✅ A Proxmox Cluster should be established
+
+---
+
+## Create The Kubernetes Cluster
 ### 6. Create Virtual Machines (Ubuntu 22.04)
 
 VM Name	Host Node	Role
