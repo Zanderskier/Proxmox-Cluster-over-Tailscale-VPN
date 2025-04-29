@@ -453,3 +453,17 @@ Validates Proxmox and Kubernetes integration over secure VPN
 
 Enables simulation of production-grade setups in a home environment
 
+---
+## Sources:
+
+**[Aaron Smallberg, Proxmox vs. Kubernetes: Choosing the Right Platform](https://www.plural.sh/blog/kubernetes-proxmox-guide/)**
+
+**[Brandon Lee, Setting Up Kubernetes on Proxmox: A Comprehensive Guide](https://theitbros.com/set-up-kubernetes-on-proxmox/)**
+
+**[Sam Weaver, Kubernetes on Proxmox: A Practical Guide for DevOps](https://www.plural.sh/blog/kubernetes-on-proxmox-guide/)**
+
+**[Shahalamol R, Kubernetes Cluster Deployment on Proxmox 8 | How To?](https://bobcares.com/blog/kubernetes-cluster-deployment-on-proxmox-8/)**
+
+**[Winnie Ondara, How to Install Kubernetes on Ubuntu 24.04: Step-by-Step](https://www.cherryservers.com/blog/install-kubernetes-ubuntu)**
+
+
