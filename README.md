@@ -277,6 +277,47 @@ Then apply the settings by running the following command:
 sudo sysctl --system
 ```
 
+### 5. Install Docker (on all nodes)
+```bash
+sudo apt update
+```
+```bash
+sudo apt install docker.io -y
+```
+```bash
+sudo systemctl status docker
+```
+Enable the Docker daemon to autostart on system startup or upon a reboot
+```bash
+sudo systemctl enable docker
+```
+
+The installation of Docker also comes with containerd.
+Configure containerd to ensure it runs reliably in the Kubernetes cluster
+
+```bash
+sudo mkdir /etc/containerd
+```
+Next, create a default configuration file for containerd.
+```bash
+sudo sh -c "containerd config default > /etc/containerd/config.toml"
+```
+
+Update the SystemdCgroup directive by setting it to true as shown
+```bash
+sudo sed -i 's/ SystemdCgroup = false/ SystemdCgroup = true/' /etc/containerd/config.toml
+```
+Restart the containerd service to apply the changes made.
+```bash
+sudo systemctl restart containerd.service
+```
+verify that the containerd service is running as expected
+```bash
+sudo systemctl status containerd.service
+```
+
+### 6. Install Kubernetes components (on all nodes)
+
 Set up kubectl for the user:
 
 ```bash
