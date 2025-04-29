@@ -1,4 +1,4 @@
-# 🖧 Proxmox Cluster over Tailscale VPN
+# 🖧 Proxmox & Kubernetes Cluster over Tailscale VPN
 
 ## Project Overview
 
@@ -66,8 +66,8 @@ sudo tailscale up
 Verify connection:
 ```bash
 tailscale status
-Ensure both Proxmox nodes can reach each other via Tailscale IPs.
 ```
+Ensure both Proxmox nodes can reach each other via Tailscale IPs.
 
 ### 3. Edit Hosts file to Ensuring Hostname Resolution for Cluster Communication
 **File should be editted on all nodes in cluster**
@@ -129,7 +129,7 @@ quorum {
 }
 
 totem {
-  cluster_name: cluster2
+  cluster_name: <cluster-name>
   config_version: 1
   interface {
     linknumber: 0
@@ -158,7 +158,7 @@ pvecm add <node 1 hostname>
 ```
 Make sure ports 22, 5405 (Corosync), and 8006 (Web UI) are reachable via Tailscale.
 
-### ✅ A Proxmox Cluster should be established
+### ✅ A Proxmox Cluster should be established now
 
 ---
 
@@ -171,21 +171,112 @@ kube-worker-1	Proxmox Node 1	Worker
 kube-worker-2	Proxmox Node 2	Worker
 Install Ubuntu Server 22.04 on all VMs.
 
+Each Ubuntu server in was given 2 CPU's 2GB Ram, 32GB storage
+
 ### 7. Connect All VMs to Tailscale
-Install Tailscale on each VM:
+
+Add Tailscale's package signing key and repository:
 
 ```bash
-curl -fsSL https://tailscale.com/install.sh | sh
-sudo tailscale up --authkey <your-auth-key> --hostname kube-nodeX
-```
-Verify all nodes are on the Tailscale network.
+curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/jammy.noarmor.gpg | tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null
 
-### 8. Initialize Kubernetes Cluster
-On kube-master:
+curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/jammy.tailscale-keyring.list | tee /etc/apt/sources.list.d/tailscale.list
+
+```
+Install Tailscale:
 
 ```bash
-sudo kubeadm init --pod-network-cidr=10.244.0.0/16
+sudo apt-get update
+sudo apt-get install tailscale
 ```
+Connect machines to Tailscale network and authenticate via browser:
+```bash
+sudo tailscale up
+```
+Verify connection:
+```bash
+tailscale status
+```
+
+---
+## Initialize Kubernetes Cluster
+
+The following steps should be completed on all nodes in cluster:
+
+### 1. Configure hostnames (all nodes)
+```bash
+sudo  nano  /etc/hosts
+```
+The file should look similar to this:
+(node1 file example)
+```bash
+127.0.0.1 localhost
+127.0.1.1 <node1 hostname>
+
+<tailscale IP> <node1 hostname>
+<tailscale IP> <node2 hostname>
+
+# The following lines are desirable for IPv6 capable hosts
+::1     ip6-localhost ip6-loopback
+fe00::0 ip6-localnet
+ff00::0 ip6-mcastprefix
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+```
+### 2. Disable swap space (all nodes)
+
+``` bash
+sudo swapoff -a
+```
+
+This will only temporarily disable swap and it will turn on on reboot, to fix this edit the **fstab** file and comment out the **swap** line
+
+```bash
+sudo nano /etc/fstab
+```
+![swap](https://github.com/user-attachments/assets/08592719-dbe2-40b3-b81c-bf9d9ba7ce2f)
+
+check that it is disabled by running this command. There will be no output if swap is off.
+```bash
+swapon --show
+```
+
+### 3. Load Containerd modules (all nodes)
+
+```bash
+sudo modprobe overlay
+```
+```bash
+sudo modprobe br_netfilter
+```
+
+Create a configuration file as shown and specify the modules to load them permanently.
+
+```bash
+sudo tee /etc/modules-load.d/k8s.conf <<EOF
+overlay
+br_netfilter
+EOF
+```
+
+### 4. Configure Kubernetes IPv4 networking (all nodes)
+
+```bash
+sudo nano   /etc/sysctl.d/k8s.conf
+```
+
+Add the following lines:
+```bash
+net.bridge.bridge-nf-call-iptables  = 1
+net.bridge.bridge-nf-call-ip6tables = 1
+net.ipv4.ip_forward   = 1
+```
+
+Then apply the settings by running the following command:
+```bash
+sudo sysctl --system
+```
+
 Set up kubectl for the user:
 
 ```bash
