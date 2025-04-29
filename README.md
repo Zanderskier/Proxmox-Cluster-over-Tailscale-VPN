@@ -21,13 +21,24 @@ Further, it shows how to deploy a **multi-node Kubernetes cluster** within this 
 ## 🌐 Network Topology
 
 ```text
-+-------------------------+           +--------------------------+
-|    Proxmox Node 1       |           |     Proxmox Node 2       |
-|  Location A (Home)      |           |   Location B (Remote)     |
-|  - Tailscale IP: 100.x  |<--------->|   - Tailscale IP: 100.y   |
-|  - VM1: kube-master     |           |   - VM3: kube-worker-2    |
-|  - VM2: kube-worker-1   |           +--------------------------+
-+-------------------------+
+┌──────────────────────┐     Tailscale VPN     ┌──────────────────────┐
+│   Proxmox Node A     │◄────────────────────►│   Proxmox Node B     │
+│  (e.g., 192.168.1.x) │                      │  (e.g., 192.168.2.x) │
+│      100.x.x.x       │                      │       100.y.y.y      │
+|    (Tailscale IP)    |                      |     (Tailscale IP)   |
+│ ┌──────────────────┐ │                      │ ┌──────────────────┐ │
+│ │  Ubuntu VM #1    │ │                      │ │  Ubuntu VM #2    │ │
+│ │ (k8s controlplane│ │                      │ │ (k8s worker node)│ │
+│ │  + Tailscale IP) │ │                      │ │  + Tailscale IP  │ │
+│ └──────────────────┘ │                      │ └──────────────────┘ │
+└──────────────────────┘                      └──────────────────────┘
+
+                ⇅                                ⇅
+            Kubernetes Cluster Communication (via Tailscale)
+
+                    🛡️ All VMs in same Tailscale Tailnet
+                    🔁 Internal Pod/Service traffic routes via Tailscale IPs
+                    📡 No need for port-forwarding or public exposure
 ```
 ---
 
