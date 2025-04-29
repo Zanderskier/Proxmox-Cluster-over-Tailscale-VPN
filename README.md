@@ -300,12 +300,13 @@ sudo apt update
 ```bash
 sudo apt install docker.io -y
 ```
-```bash
-sudo systemctl status docker
-```
 Enable the Docker daemon to autostart on system startup or upon a reboot
 ```bash
 sudo systemctl enable docker
+```
+Check Docker status:
+```bash
+sudo systemctl status docker
 ```
 
 The installation of Docker also comes with containerd.
@@ -364,20 +365,65 @@ sudo apt install kubelet kubeadm kubectl -y
 ```
 ### 7. Initialize Kubernetes cluster (on master node)
 
+This configures the master node as the control plane. To initialize the cluster, run the command shown. The --pod-network-cidr indicates a unique pod network for the cluster, in this case, the 10.10.0.0 network with a CIDR of /16
 
-Set up kubectl for the user:
+Here we will ensure that Kubernetes API server advertises the Tailscale IP to other nodes. By default, it might pick your primary LAN interface by default unless specified.
 
+```bash
+sudo kubeadm init --pod-network-cidr=10.10.0.0/16 --apiserver-advertise-address=<node1 Tailscale IP>
+```
+Towards the end of the output, you will be notified that your cluster was initialized successfully. You will then be required to run the highlighted commands as a regular user. The command for joining the nodes to the cluster will be displayed at the tail end of the output.
+
+Follow the direction of commands to run displayed in the terminal:
 ```bash
 mkdir -p $HOME/.kube
+```
+```bash
 sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+```
+```bash
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
 ```
-Install CNI (e.g., Flannel):
 
+### 8: Install Calico network add-on plugin (on master node)
+
+Calico provides a network security solution in a Kubernetes cluster. It secures communication between individual pods as well as pods and external services. By auto-assigning IP addresses to pods, it ensures smooth communication between them.
+
+Deploy the Calico operator using the kubectl CLI tool.
 ```bash
-kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.28.0/manifests/tigera-operator.yaml
 ```
-Join worker nodes using the kubeadm join command output from kubeadm init.
+
+Download Calico’s custom-resources file
+```bash
+curl https://raw.githubusercontent.com/projectcalico/calico/v3.28.0/manifests/custom-resources.yaml -O
+```
+Update the CIDR defined in the custom-resources file to match the pod's network
+```bash
+sed -i 's/cidr: 192\.168\.0\.0\/16/cidr: 10.10.0.0\/16/g' custom-resources.yaml
+```
+
+Then create resources defined in the YAML file
+```bash
+kubectl create -f custom-resources.yaml
+```
+At this point, the master node, which acts as the control plane, is the only node that is available in the cluster. To verify this, run the command:
+```bash
+kubectl get nodes
+```
+### 9: Add worker nodes to the cluster (on worker nodes)
+With the master node configured, the remaining step is to add the worker nodes to the cluster.
+
+Run the kubeadm join command below in each worker node
+```bash
+kubeadm join <node1 Tailscale IP>:6443 --token 2i5iru.f4m1vbxyc9w2ve7q \
+        --discovery-token-ca-cert-hash sha256:<generated Token>
+```
+
+Check the nodes in the cluster once again. This time around, you will see the worker nodes have joined the cluster. Run this command on the master node
+```bash
+kubectl get nodes
+```
 
 ---
 ## ✅ Outcome
