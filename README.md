@@ -146,6 +146,11 @@ totem {
 ```
 Save and sync.
 
+Restart the corosync service on the node, allowing it to read the updated configuration
+```bash
+systemctl restart corosync
+```
+
 ### 6. Join the Cluster from Node 2
 On Node 2:
 
