@@ -101,7 +101,7 @@ On the first node:
 ```bash
 pvecm create <my-cluster-name>
 ```
-### 4. Modify corosync.conf to Use Tailscale IPs
+### 5. Modify corosync.conf to Use Tailscale IPs
 Edit the Corosync config (on Node 1):
 
 ```bash
@@ -146,7 +146,7 @@ totem {
 ```
 Save and sync.
 
-### 5. Join the Cluster from Node 2
+### 6. Join the Cluster from Node 2
 On Node 2:
 
 ```bash
@@ -163,7 +163,7 @@ Make sure ports 22, 5405 (Corosync), and 8006 (Web UI) are reachable via Tailsca
 ---
 
 ## Create The Kubernetes Cluster
-### 6. Create Virtual Machines (Ubuntu 22.04)
+### 7. Create Virtual Machines (Ubuntu 22.04)
 
 VM Name	Host Node	Role
 kube-master	Proxmox Node 1	K8s control
@@ -173,7 +173,7 @@ Install Ubuntu Server 22.04 on all VMs.
 
 Each Ubuntu server in was given 2 CPU's 2GB Ram, 32GB storage
 
-### 7. Connect All VMs to Tailscale
+### 8. Connect All VMs to Tailscale
 
 Add Tailscale's package signing key and repository:
 
