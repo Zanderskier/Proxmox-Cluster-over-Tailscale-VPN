@@ -182,12 +182,14 @@ Make sure ports 22, 5405 (Corosync), and 8006 (Web UI) are reachable via Tailsca
 ### 7. Create Virtual Machines (Ubuntu 22.04)
 
 VM Name	Host Node	Role
+
 kube-master	Proxmox Node 1	K8s control
-kube-worker-1	Proxmox Node 1	Worker
-kube-worker-2	Proxmox Node 2	Worker
+
+kube-worker-1	Proxmox Node 2	Worker
+
 Install Ubuntu Server 22.04 on all VMs.
 
-Each Ubuntu server in was given 2 CPU's 2GB Ram, 32GB storage
+Each Ubuntu server was given 2 CPU's 2GB Ram, 32GB storage
 
 ### 8. Connect All VMs to Tailscale
 
@@ -241,6 +243,9 @@ ff02::2 ip6-allrouters
 ```
 ### 2. Disable swap space (all nodes)
 
+Kubernetes requires swap to be disabled because it relies on precise memory management using Linux cgroups to enforce resource limits. When swap is enabled, the operating system can move memory pages to disk, which interferes with Kubernetes' ability to track and enforce memory usage, potentially leading to performance issues and inaccurate scheduling decisions. Additionally, swap can prevent proper out-of-memory (OOM) behavior, as processes might be swapped out instead of terminated. To ensure consistent and reliable operation.
+
+Disable swap
 ``` bash
 sudo swapoff -a
 ```
