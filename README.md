@@ -450,6 +450,12 @@ No need for port forwarding or public IPs
 
 Adds resilience and scalability to homelab projects
 
+Tailscale IPs are part of a private virtual network (Tailnet): When you connect devices via Tailscale, they are assigned IP addresses in a private IP range (typically in the 100.x.x.x block). This is a part of the WireGuard-based VPN network and is used for communication within the Tailscale network.
+
+Private IP Range: The 100.x.x.x addresses that Tailscale assigns to devices are part of the reserved private address space for Tailscale networks, not public IP addresses. While "100" in the first octet might seem like a public IP address at first glance, it’s specifically reserved for private networks like Tailnet. These addresses are not routable on the global internet, and external entities cannot access these IPs directly.
+
+Zero-trust encrypted networking: Tailscale uses WireGuard to create a secure mesh network, ensuring that all communication between devices is encrypted and cannot be easily intercepted by third parties. The Tailscale IPs are strictly for communication within your private Tailscale network, meaning they cannot be accessed publicly or through traditional routing mechanisms on the internet.
+
 ---
 ## 💡 Lessons & Use Cases
 Ideal for homelab enthusiasts, developers, and edge deployments
@@ -468,6 +474,8 @@ Enables simulation of production-grade setups in a home environment
 **[Sam Weaver, Kubernetes on Proxmox: A Practical Guide for DevOps](https://www.plural.sh/blog/kubernetes-on-proxmox-guide/)**
 
 **[Shahalamol R, Kubernetes Cluster Deployment on Proxmox 8 | How To?](https://bobcares.com/blog/kubernetes-cluster-deployment-on-proxmox-8/)**
+
+**[Tailscale Documentation, IP pool](https://tailscale.com/kb/1304/ip-pool)**
 
 **[Winnie Ondara, How to Install Kubernetes on Ubuntu 24.04: Step-by-Step](https://www.cherryservers.com/blog/install-kubernetes-ubuntu)**
 
