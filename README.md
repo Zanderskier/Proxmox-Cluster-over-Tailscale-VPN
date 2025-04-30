@@ -421,8 +421,8 @@ With the master node configured, the remaining step is to add the worker nodes t
 
 Run the kubeadm join command below in each worker node
 ```bash
-kubeadm join <node1 Tailscale IP>:6443 --token 2i5iru.f4m1vbxyc9w2ve7q \
-        --discovery-token-ca-cert-hash sha256:<generated Token>
+kubeadm join <node1 Tailscale IP>:6443 --token <generated token> \
+        --discovery-token-ca-cert-hash sha256:<generated Hash>
 ```
 
 Check the nodes in the cluster once again. This time around, you will see the worker nodes have joined the cluster. Run this command on the master node
