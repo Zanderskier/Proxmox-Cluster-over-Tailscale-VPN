@@ -80,7 +80,7 @@ tailscale status
 ```
 Ensure both Proxmox nodes can reach each other via Tailscale IPs.
 
-### 3. Edit Hosts file to Ensuring Hostname Resolution for Cluster Communication
+### 3. Edit Hosts file to Ensure Hostname Resolution for Cluster Communication
 **File should be edited on all nodes in cluster**
 
 ```bash
