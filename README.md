@@ -464,6 +464,8 @@ Validates Proxmox and Kubernetes integration over secure VPN
 
 Enables simulation of production-grade setups in a home environment
 
+Proxmox clustering requires very low-latency communication (<10ms) between nodes, especially for corosync
+
 ---
 ## Sources:
 
