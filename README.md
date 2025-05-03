@@ -425,6 +425,11 @@ kubeadm join <node1 Tailscale IP>:6443 --token <generated token> \
         --discovery-token-ca-cert-hash sha256:<generated Hash>
 ```
 
+If adding another node or cleared the screen, use this command to get the join command again
+```bash
+kubeadm token create --print-join-command
+```
+
 Check the nodes in the cluster once again. This time around, you will see the worker nodes have joined the cluster. Run this command on the master node
 ```bash
 kubectl get nodes
