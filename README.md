@@ -469,7 +469,13 @@ Validates Proxmox and Kubernetes integration over secure VPN
 
 Enables simulation of production-grade setups in a home environment
 
-Proxmox clustering requires very low-latency communication (<10ms) between nodes, especially for corosync
+Proxmox clustering requires very low-latency communication (<10ms) between nodes, especially for Corosync
+
+Using the Tailscale network (Tailnet), you can easily add additional nodes to the Kubernetes cluster from virtually anywhere — including cloud environments like AWS, GCP, or even remote Raspberry Pi devices — without requiring public IPs or complex firewall rules
+
+This enables the creation of a truly hybridized Kubernetes cluster, where nodes can reside across data centers, cloud platforms, and remote edge locations, all securely connected via Tailscale
+
+Demonstrates how zero-trust VPNs like Tailscale can simplify infrastructure scaling and management, even across geographically dispersed systems
 
 ---
 ## Sources:
